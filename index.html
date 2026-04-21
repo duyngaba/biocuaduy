@@ -2,30 +2,31 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Web Duy</title>
-
+<title>Duy Ngọc</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-body {
+body{
     margin:0;
     overflow:hidden;
     font-family:Arial;
     color:white;
-    background: radial-gradient(circle at top, #1a1a2e, #000);
+    background:url('https://4kwallpapers.com/images/walls/full/19435.jpg') no-repeat center/cover;
 }
 
-/* overlay glow */
-body::after {
+/* overlay galaxy */
+body::after{
     content:"";
     position:absolute;
     width:100%;
     height:100%;
-    background: radial-gradient(circle at 50% 20%, rgba(255,77,109,0.2), transparent);
+    background:radial-gradient(circle at 30% 30%,rgba(255,0,150,0.2),transparent 60%),
+               radial-gradient(circle at 70% 70%,rgba(0,200,255,0.2),transparent 60%),
+               rgba(0,0,0,0.4);
 }
 
-/* view */
-.views {
+/* VIEW */
+.views{
     position:absolute;
     top:10px;
     width:100%;
@@ -33,13 +34,13 @@ body::after {
     z-index:2;
 }
 
-/* layout */
-.main {
+/* LAYOUT */
+.main{
     display:flex;
     height:100vh;
 }
 
-.left {
+.left{
     width:30%;
     display:flex;
     flex-direction:column;
@@ -48,28 +49,39 @@ body::after {
     z-index:2;
 }
 
-.status {
-    color:#ff4d6d;
-    text-shadow:0 0 20px #ff4d6d;
+/* STATUS half black white */
+.status{
+    font-size:20px;
+    background:linear-gradient(90deg,#fff 50%,#ff69b4 50%);
+    -webkit-background-clip:text;
+    color:transparent;
+    animation:blink 2s infinite;
 }
 
-/* icons */
-.icons i {
+@keyframes blink{
+    0%{opacity:0.6;}
+    100%{opacity:1;}
+}
+
+/* ICON */
+.icons a{
     font-size:35px;
     margin:15px;
+    transition:0.3s;
 }
+.icons a:hover{transform:scale(1.2);}
 
-.facebook {color:#1877f2;}
-.tiktok {color:white;}
+.facebook{color:#1877f2;}
+.tiktok{color:#ff0050;}
 
-canvas {
+canvas{
     position:absolute;
     top:0;
     left:0;
 }
 
 /* SECRET */
-#secret {
+#secret{
     display:none;
     position:fixed;
     top:0;
@@ -92,108 +104,187 @@ canvas {
     <p class="status">💔 Đang độc thân</p>
 
     <div class="icons">
-        <i class="fab fa-facebook facebook"></i>
-        <i class="fab fa-tiktok tiktok"></i>
+        <a href="https://www.facebook.com/profile.php?id=61582623579599" target="_blank" class="facebook">
+            <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://www.tiktok.com/@duy367daystudyenglish" target="_blank" class="tiktok">
+            <i class="fab fa-tiktok"></i>
+        </a>
     </div>
 </div>
 
 <canvas id="canvas"></canvas>
 </div>
 
-<!-- SECRET -->
+<!-- SECRET (KHÔNG HIỆN GỢI Ý) -->
 <div id="secret">
-    <canvas id="heartCanvas"></canvas>
-    <button onclick="closeSecret()" style="position:absolute;top:20px;right:20px;">Đóng</button>
+<canvas id="heartCanvas"></canvas>
+<button onclick="closeSecret()" style="position:absolute;top:20px;right:20px;">Đóng</button>
 </div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
 /* VIEW */
-let v = localStorage.getItem("v") || 0;
+let v=localStorage.getItem("v")||0;
 v++;
-localStorage.setItem("v", v);
-document.getElementById("view").innerText = v;
+localStorage.setItem("v",v);
+document.getElementById("view").innerText=v;
 
-/* TEXT */
-const texts=["tôi với cô ấy","me and her","я и она","我和她","私と彼女","moi et elle"];
+/* ===== GALAXY HEART ===== */
+let hearts=[];
+function spawnHeart(){
+    hearts.push({
+        x:Math.random()*canvas.width,
+        y:canvas.height,
+        size:Math.random()*10+4,
+        speed:Math.random()*1.5+0.5,
+        dx:(Math.random()-0.5)*0.5,
+        a:1
+    });
+}
+
+/* ===== PEOPLE ===== */
+let people=[];
+for(let i=0;i<100;i++){
+    people.push({
+        x:Math.random()*canvas.width,
+        y:canvas.height-15,
+        speed:Math.random()*1,
+        size:2
+    });
+}
+
+/* ===== VOLCANO ===== */
+const volcanoX=canvas.width*0.7;
+const volcanoY=canvas.height-120;
+
+/* CHỈ GIỮ NGÔN NGỮ KHÁC */
+const texts=["я и она","我和她","私と彼女","moi et elle"];
 let textP=[];
 
 function spawnText(){
     textP.push({
-        x:canvas.width*0.7,
-        y:canvas.height,
+        x:volcanoX,
+        y:volcanoY,
         text:texts[Math.random()*texts.length|0],
-        alpha:1,
-        size:20+Math.random()*20
+        size:20+Math.random()*15,
+        dx:(Math.random()-0.5)*3,
+        dy:-(Math.random()*3+2),
+        a:1
     });
 }
 
-/* PEOPLE */
-let people=[];
-for(let i=0;i<50;i++){
-    people.push({
-        x:Math.random()*canvas.width,
-        y:canvas.height-20,
-        speed:Math.random()*1+0.5
-    });
-}
-
-/* FIREWORK */
+/* ===== FIREWORK ===== */
 let fireworks=[];
 function fire(){
     let x=Math.random()*canvas.width;
     let y=canvas.height/2;
+
     let arr=[];
-    for(let i=0;i<40;i++){
+    for(let i=0;i<100;i++){
         arr.push({
             x:x,y:y,
-            dx:(Math.random()-0.5)*6,
-            dy:(Math.random()-0.5)*6,
-            a:1
+            dx:(Math.random()-0.5)*8,
+            dy:(Math.random()-0.5)*8,
+            a:1,
+            color:`hsl(${Math.random()*360},100%,60%)`
         });
     }
     fireworks.push(arr);
+}
+
+/* HEART DRAW */
+function drawHeart(x,y,size){
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.bezierCurveTo(x,y-size/2,x-size,y-size/2,x-size,y);
+    ctx.bezierCurveTo(x-size,y+size/2,x,y+size,x,y+size);
+    ctx.bezierCurveTo(x,y+size,x+size,y+size/2,x+size,y);
+    ctx.bezierCurveTo(x+size,y-size/2,x,y-size/2,x,y);
+    ctx.fill();
 }
 
 /* LOOP */
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    /* people */
+    /* HEART GALAXY */
+    hearts.forEach((h,i)=>{
+        ctx.globalAlpha=h.a;
+        ctx.fillStyle="hsl("+Math.random()*360+",100%,70%)";
+        drawHeart(h.x,h.y,h.size);
+
+        h.y-=h.speed;
+        h.x+=h.dx;
+        h.a-=0.008;
+
+        if(h.a<=0) hearts.splice(i,1);
+    });
+
+    /* PEOPLE */
+    ctx.globalAlpha=1;
     ctx.fillStyle="white";
     people.forEach(p=>{
-        ctx.fillRect(p.x,p.y,3,3);
+        ctx.fillRect(p.x,p.y,p.size,p.size);
         p.x+=p.speed;
         if(p.x>canvas.width)p.x=0;
     });
 
-    /* text */
+    /* VOLCANO + LAVA */
+    let grad=ctx.createLinearGradient(volcanoX,volcanoY,volcanoX,canvas.height);
+    grad.addColorStop(0,"#ff4d6d");
+    grad.addColorStop(1,"#330000");
+
+    ctx.fillStyle=grad;
+    ctx.beginPath();
+    ctx.moveTo(volcanoX-120,canvas.height);
+    ctx.lineTo(volcanoX,volcanoY);
+    ctx.lineTo(volcanoX+120,canvas.height);
+    ctx.fill();
+
+    /* lava glow */
+    ctx.shadowBlur=20;
+    ctx.shadowColor="#ff4d6d";
+    ctx.fillRect(volcanoX-5,volcanoY,10,60);
+    ctx.shadowBlur=0;
+
+    /* TEXT */
     textP.forEach((t,i)=>{
-        ctx.globalAlpha=t.alpha;
-        ctx.fillStyle="#ff4d6d";
+        ctx.globalAlpha=t.a;
+        ctx.fillStyle="#ff69b4";
         ctx.font=t.size+"px Arial";
         ctx.fillText(t.text,t.x,t.y);
 
-        t.y-=2;
-        t.alpha-=0.01;
-        if(t.alpha<=0) textP.splice(i,1);
+        t.x+=t.dx;
+        t.y+=t.dy;
+        t.a-=0.01;
+
+        if(t.a<=0) textP.splice(i,1);
     });
 
-    /* fireworks */
+    /* FIREWORK */
     fireworks.forEach((f,i)=>{
         f.forEach((p,j)=>{
             ctx.globalAlpha=p.a;
-            ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
-            ctx.fillRect(p.x,p.y,3,3);
+            ctx.shadowBlur=15;
+            ctx.shadowColor=p.color;
+
+            ctx.fillStyle=p.color;
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,3,0,Math.PI*2);
+            ctx.fill();
+
+            ctx.shadowBlur=0;
 
             p.x+=p.dx;
             p.y+=p.dy;
             p.a-=0.02;
+
             if(p.a<=0) f.splice(j,1);
         });
 
@@ -204,13 +295,17 @@ function draw(){
     requestAnimationFrame(draw);
 }
 
+/* spawn */
+setInterval(spawnHeart,80);
 setInterval(spawnText,300);
-setInterval(fire,1000);
+setInterval(fire,1200);
+
 draw();
 
-/* SECRET PASSWORD */
+/* SECRET (KHÔNG HIỆN GỢI Ý) */
 let input="";
 const password="1234";
+let started=false;
 
 document.addEventListener("keydown",e=>{
     input+=e.key;
@@ -224,20 +319,23 @@ document.addEventListener("keydown",e=>{
 
 function openSecret(){
     document.getElementById("secret").style.display="block";
-    startHeart();
+    if(!started){
+        startHeart();
+        started=true;
+    }
 }
 
 function closeSecret(){
     document.getElementById("secret").style.display="none";
 }
 
-/* HEART EFFECT */
+/* SECRET EFFECT */
 function startHeart(){
 const canvas=document.getElementById("heartCanvas");
 const ctx=canvas.getContext("2d");
 
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
 let hearts=[];
 
@@ -255,9 +353,9 @@ function spawn(){
     hearts.push({
         x:canvas.width/2,
         y:canvas.height/2,
-        size:Math.random()*15+5,
-        dx:(Math.random()-0.5)*4,
-        dy:(Math.random()-0.5)*4,
+        size:Math.random()*20+5,
+        dx:(Math.random()-0.5)*5,
+        dy:(Math.random()-0.5)*5,
         a:1
     });
 }
@@ -265,8 +363,8 @@ function spawn(){
 function loop(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle="#ff4d6d";
-    drawHeart(canvas.width/2,canvas.height/2,150);
+    ctx.fillStyle="#ff69b4";
+    drawHeart(canvas.width/2,canvas.height/2,180);
 
     hearts.forEach((h,i)=>{
         ctx.globalAlpha=h.a;
@@ -283,7 +381,7 @@ function loop(){
     requestAnimationFrame(loop);
 }
 
-setInterval(spawn,100);
+setInterval(spawn,80);
 loop();
 }
 </script>
