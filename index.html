@@ -1,139 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Duy Profile</title>
+<meta charset="UTF-8">
+<title>Web Duy</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: url('https://4kwallpapers.com/images/walls/thumbs_3t/19435.png') no-repeat center center;
-            background-size: cover;
-            color: white;
-            overflow: hidden;
-        }
+<style>
+body {
+    margin:0;
+    overflow:hidden;
+    font-family:Arial;
+    color:white;
+    background: radial-gradient(circle at top, #1a1a2e, #000);
+}
 
-        body::before {
-            content: "";
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(6px);
-            z-index: -1;
-        }
+/* overlay glow */
+body::after {
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background: radial-gradient(circle at 50% 20%, rgba(255,77,109,0.2), transparent);
+}
 
-        #tsparticles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
+/* view */
+.views {
+    position:absolute;
+    top:10px;
+    width:100%;
+    text-align:center;
+    z-index:2;
+}
 
-        .card {
-            width: 320px;
-            margin: 80px auto;
-            padding: 25px;
-            background: rgba(0,0,0,0.7);
-            border-radius: 18px;
-            text-align: center;
-            backdrop-filter: blur(12px);
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 0 25px rgba(0,255,204,0.5);
-            transition: transform 0.2s;
-        }
+/* layout */
+.main {
+    display:flex;
+    height:100vh;
+}
 
-        img {
-            width: 120px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-        }
+.left {
+    width:30%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:2;
+}
 
-        h1 {
-            margin: 10px 0 5px;
-        }
+.status {
+    color:#ff4d6d;
+    text-shadow:0 0 20px #ff4d6d;
+}
 
-        .status {
-            color: #00ffcc;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
+/* icons */
+.icons i {
+    font-size:35px;
+    margin:15px;
+}
 
-        p {
-            color: #ccc;
-            font-size: 14px;
-        }
+.facebook {color:#1877f2;}
+.tiktok {color:white;}
 
-        .links a {
-            display: block;
-            margin: 8px auto;
-            padding: 10px;
-            width: 80%;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            transition: 0.3s;
-        }
+canvas {
+    position:absolute;
+    top:0;
+    left:0;
+}
 
-        .links a:hover {
-            background: #00ffcc;
-            color: black;
-            box-shadow: 0 0 15px #00ffcc;
-        }
-    </style>
+/* SECRET */
+#secret {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    z-index:999;
+}
+</style>
 </head>
+
 <body>
 
-<div id="tsparticles"></div>
+<div class="views">👁️ <span id="view">0</span></div>
 
-<div class="card" id="card">
-    <img src="https://via.placeholder.com/120">
+<div class="main">
+<div class="left">
+    <h1>Duy Ngọc</h1>
+    <p class="status">💔 Đang độc thân</p>
 
-    <h1>Ngọc Duy</h1>
-    <div class="status">● Độc thân</div>
-    <p>Dev | Chill | Anime</p>
-
-    <div class="links">
-        <a href="https://www.facebook.com/profile.php?id=61582623579599" target="_blank">
-            <i class="fab fa-facebook"></i> Facebook
-        </a>
-        <a href="https://www.tiktok.com/@duy367daystudyenglish" target="_blank">
-            <i class="fab fa-tiktok"></i> TikTok
-        </a>
+    <div class="icons">
+        <i class="fab fa-facebook facebook"></i>
+        <i class="fab fa-tiktok tiktok"></i>
     </div>
 </div>
 
+<canvas id="canvas"></canvas>
+</div>
+
+<!-- SECRET -->
+<div id="secret">
+    <canvas id="heartCanvas"></canvas>
+    <button onclick="closeSecret()" style="position:absolute;top:20px;right:20px;">Đóng</button>
+</div>
 
 <script>
-    // particle nhẹ hơn (đỡ lag)
-    tsParticles.load("tsparticles", {
-        particles: {
-            number: { value: 40 },
-            color: { value: "#00ffcc" },
-            size: { value: 3 },
-            move: { enable: true, speed: 0.8 },
-            links: {
-                enable: true,
-                color: "#00ffcc",
-                opacity: 0.2
-            }
-        }
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+/* VIEW */
+let v = localStorage.getItem("v") || 0;
+v++;
+localStorage.setItem("v", v);
+document.getElementById("view").innerText = v;
+
+/* TEXT */
+const texts=["tôi với cô ấy","me and her","я и она","我和她","私と彼女","moi et elle"];
+let textP=[];
+
+function spawnText(){
+    textP.push({
+        x:canvas.width*0.7,
+        y:canvas.height,
+        text:texts[Math.random()*texts.length|0],
+        alpha:1,
+        size:20+Math.random()*20
+    });
+}
+
+/* PEOPLE */
+let people=[];
+for(let i=0;i<50;i++){
+    people.push({
+        x:Math.random()*canvas.width,
+        y:canvas.height-20,
+        speed:Math.random()*1+0.5
+    });
+}
+
+/* FIREWORK */
+let fireworks=[];
+function fire(){
+    let x=Math.random()*canvas.width;
+    let y=canvas.height/2;
+    let arr=[];
+    for(let i=0;i<40;i++){
+        arr.push({
+            x:x,y:y,
+            dx:(Math.random()-0.5)*6,
+            dy:(Math.random()-0.5)*6,
+            a:1
+        });
+    }
+    fireworks.push(arr);
+}
+
+/* LOOP */
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    /* people */
+    ctx.fillStyle="white";
+    people.forEach(p=>{
+        ctx.fillRect(p.x,p.y,3,3);
+        p.x+=p.speed;
+        if(p.x>canvas.width)p.x=0;
     });
 
-    // card theo chuột (nhẹ hơn)
-    const card = document.getElementById("card");
-    document.addEventListener("mousemove", (e) => {
-        let x = (window.innerWidth / 2 - e.pageX) / 40;
-        let y = (window.innerHeight / 2 - e.pageY) / 40;
-        card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
-   
+    /* text */
+    textP.forEach((t,i)=>{
+        ctx.globalAlpha=t.alpha;
+        ctx.fillStyle="#ff4d6d";
+        ctx.font=t.size+"px Arial";
+        ctx.fillText(t.text,t.x,t.y);
 
-    // fix nhạc
+        t.y-=2;
+        t.alpha-=0.01;
+        if(t.alpha<=0) textP.splice(i,1);
+    });
+
+    /* fireworks */
+    fireworks.forEach((f,i)=>{
+        f.forEach((p,j)=>{
+            ctx.globalAlpha=p.a;
+            ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
+            ctx.fillRect(p.x,p.y,3,3);
+
+            p.x+=p.dx;
+            p.y+=p.dy;
+            p.a-=0.02;
+            if(p.a<=0) f.splice(j,1);
         });
+
+        if(f.length===0) fireworks.splice(i,1);
+    });
+
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+}
+
+setInterval(spawnText,300);
+setInterval(fire,1000);
+draw();
+
+/* SECRET PASSWORD */
+let input="";
+const password="1234";
+
+document.addEventListener("keydown",e=>{
+    input+=e.key;
+    if(input.length>password.length) input=input.slice(-password.length);
+
+    if(input===password){
+        openSecret();
+        input="";
+    }
+});
+
+function openSecret(){
+    document.getElementById("secret").style.display="block";
+    startHeart();
+}
+
+function closeSecret(){
+    document.getElementById("secret").style.display="none";
+}
+
+/* HEART EFFECT */
+function startHeart(){
+const canvas=document.getElementById("heartCanvas");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let hearts=[];
+
+function drawHeart(x,y,size){
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.bezierCurveTo(x,y-size/2,x-size,y-size/2,x-size,y);
+    ctx.bezierCurveTo(x-size,y+size/2,x,y+size,x,y+size);
+    ctx.bezierCurveTo(x,y+size,x+size,y+size/2,x+size,y);
+    ctx.bezierCurveTo(x+size,y-size/2,x,y-size/2,x,y);
+    ctx.fill();
+}
+
+function spawn(){
+    hearts.push({
+        x:canvas.width/2,
+        y:canvas.height/2,
+        size:Math.random()*15+5,
+        dx:(Math.random()-0.5)*4,
+        dy:(Math.random()-0.5)*4,
+        a:1
+    });
+}
+
+function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle="#ff4d6d";
+    drawHeart(canvas.width/2,canvas.height/2,150);
+
+    hearts.forEach((h,i)=>{
+        ctx.globalAlpha=h.a;
+        drawHeart(h.x,h.y,h.size);
+
+        h.x+=h.dx;
+        h.y+=h.dy;
+        h.a-=0.02;
+
+        if(h.a<=0) hearts.splice(i,1);
+    });
+
+    ctx.globalAlpha=1;
+    requestAnimationFrame(loop);
+}
+
+setInterval(spawn,100);
+loop();
+}
 </script>
 
 </body>
