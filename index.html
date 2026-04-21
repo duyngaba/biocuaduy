@@ -11,17 +11,48 @@ body{
     overflow:hidden;
     font-family:Arial;
     color:white;
-    background:url('https://wallpaperaccess.com/full/317501.jpg') no-repeat center/cover;
+    background:black;
 }
 
-/* FIX overlay KHÔNG CHE */
-.overlay{
+/* GALAXY BACKGROUND */
+.bg{
     position:fixed;
     width:100%;
     height:100%;
-    background:rgba(0,0,0,0.5);
-    z-index:0;
+    background:
+    radial-gradient(circle at 20% 30%, #ff00cc44, transparent 50%),
+    radial-gradient(circle at 80% 70%, #00ffff44, transparent 50%),
+    black;
 }
+
+/* INFO */
+.left{
+    position:absolute;
+    left:5%;
+    top:30%;
+    z-index:2;
+}
+
+h1{
+    font-size:60px;
+    color:#ff00cc;
+    text-shadow:0 0 20px #ff00cc,0 0 40px #ff00cc;
+}
+
+.status{
+    font-size:25px;
+    background:linear-gradient(90deg,#fff 50%,#ff00cc 50%);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+/* ICON */
+.icons a{
+    font-size:45px;
+    margin:15px;
+}
+.facebook{color:#1877f2;}
+.tiktok{color:#ff0050;}
 
 /* VIEW */
 .views{
@@ -29,102 +60,41 @@ body{
     top:10px;
     width:100%;
     text-align:center;
-    z-index:3;
-}
-
-/* LAYOUT */
-.main{
-    display:flex;
-    height:100vh;
-    position:relative;
     z-index:2;
 }
 
-.left{
-    width:30%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-}
-
-/* STATUS half black white */
-.status{
-    font-size:22px;
-    background:linear-gradient(90deg,#fff 50%,#ff69b4 50%);
-    -webkit-background-clip:text;
-    color:transparent;
-}
-
-/* ICON */
-.icons a{
-    font-size:40px;
-    margin:15px;
-    transition:0.3s;
-}
-.icons a:hover{transform:scale(1.2);}
-
-.facebook{color:#1877f2;}
-.tiktok{color:#ff0050;}
-
-/* CANVAS FIX */
+/* CANVAS */
 canvas{
     position:fixed;
     top:0;
     left:0;
-    z-index:1;
-    pointer-events:none;
-}
-
-/* SECRET */
-#secret{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:black;
-    z-index:999;
 }
 </style>
 </head>
 
 <body>
 
-<div class="overlay"></div>
+<div class="bg"></div>
 
 <div class="views">👁️ <span id="view">0</span></div>
 
-<div class="main">
 <div class="left">
     <h1>Duy Ngọc</h1>
     <p class="status">💔 Đang độc thân</p>
 
     <div class="icons">
-        <a href="https://www.facebook.com/profile.php?id=61582623579599" target="_blank" class="facebook">
-            <i class="fab fa-facebook"></i>
-        </a>
-        <a href="https://www.tiktok.com/@duy367daystudyenglish" target="_blank" class="tiktok">
-            <i class="fab fa-tiktok"></i>
-        </a>
+        <a href="https://www.facebook.com/profile.php?id=61582623579599" target="_blank" class="facebook"><i class="fab fa-facebook"></i></a>
+        <a href="https://www.tiktok.com/@duy367daystudyenglish" target="_blank" class="tiktok"><i class="fab fa-tiktok"></i></a>
     </div>
 </div>
-</div>
 
-<canvas id="canvas"></canvas>
-
-<!-- SECRET -->
-<div id="secret">
-<canvas id="heartCanvas"></canvas>
-</div>
+<canvas id="c"></canvas>
 
 <script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-
-canvas.width=innerWidth;
-canvas.height=innerHeight;
+const c=document.getElementById("c");
+const ctx=c.getContext("2d");
+c.width=innerWidth;
+c.height=innerHeight;
 
 /* VIEW */
 let v=localStorage.getItem("v")||0;
@@ -136,63 +106,53 @@ document.getElementById("view").innerText=v;
 let hearts=[];
 function spawnHeart(){
     hearts.push({
-        x:Math.random()*canvas.width,
-        y:canvas.height,
-        size:Math.random()*10+4,
+        x:Math.random()*c.width,
+        y:c.height,
+        size:Math.random()*12+6,
         speed:Math.random()*2,
-        dx:(Math.random()-0.5),
         a:1
     });
 }
 
-/* PEOPLE */
-let people=[];
-for(let i=0;i<80;i++){
-    people.push({
-        x:Math.random()*canvas.width,
-        y:canvas.height-10,
-        speed:Math.random()*1,
-    });
-}
-
 /* VOLCANO */
-const volcanoX=canvas.width*0.7;
-const volcanoY=canvas.height-120;
+const vx=c.width*0.75;
+const vy=c.height-150;
 
 const texts=["я и она","我和她","私と彼女","moi et elle"];
-let textP=[];
+let txt=[];
 
 function spawnText(){
-    textP.push({
-        x:volcanoX,
-        y:volcanoY,
+    txt.push({
+        x:vx,
+        y:vy,
         text:texts[Math.random()*texts.length|0],
-        dx:(Math.random()-0.5)*3,
-        dy:-(Math.random()*3+2),
+        dx:(Math.random()-0.5)*4,
+        dy:-(Math.random()*4+2),
         a:1
     });
 }
 
 /* FIREWORK */
-let fireworks=[];
+let fw=[];
 function fire(){
-    let x=Math.random()*canvas.width;
-    let y=canvas.height/2;
-
     let arr=[];
-    for(let i=0;i<80;i++){
+    let x=Math.random()*c.width;
+    let y=c.height/2;
+
+    for(let i=0;i<120;i++){
         arr.push({
             x:x,y:y,
-            dx:(Math.random()-0.5)*6,
-            dy:(Math.random()-0.5)*6,
+            dx:(Math.random()-0.5)*8,
+            dy:(Math.random()-0.5)*8,
             a:1,
             color:`hsl(${Math.random()*360},100%,60%)`
         });
     }
-    fireworks.push(arr);
+    fw.push(arr);
 }
 
-function drawHeart(x,y,s){
+/* HEART DRAW */
+function heart(x,y,s){
     ctx.beginPath();
     ctx.moveTo(x,y);
     ctx.bezierCurveTo(x,y-s/2,x-s,y-s/2,x-s,y);
@@ -203,61 +163,62 @@ function drawHeart(x,y,s){
 }
 
 function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,c.width,c.height);
 
     /* HEART */
     hearts.forEach((h,i)=>{
         ctx.globalAlpha=h.a;
-        ctx.fillStyle=`hsl(${Math.random()*360},100%,70%)`;
-        drawHeart(h.x,h.y,h.size);
+        ctx.fillStyle=`hsl(${Math.random()*360},100%,60%)`;
+        ctx.shadowBlur=25;
+        ctx.shadowColor=ctx.fillStyle;
+        heart(h.x,h.y,h.size);
 
         h.y-=h.speed;
-        h.x+=h.dx;
         h.a-=0.01;
 
         if(h.a<=0) hearts.splice(i,1);
     });
 
-    /* PEOPLE */
-    ctx.globalAlpha=1;
-    ctx.fillStyle="white";
-    people.forEach(p=>{
-        ctx.fillRect(p.x,p.y,2,2);
-        p.x+=p.speed;
-        if(p.x>canvas.width)p.x=0;
-    });
-
     /* VOLCANO */
-    let grad=ctx.createLinearGradient(volcanoX,volcanoY,volcanoX,canvas.height);
-    grad.addColorStop(0,"#ff4d6d");
-    grad.addColorStop(1,"#330000");
+    ctx.shadowBlur=40;
+    ctx.shadowColor="#ff00cc";
 
-    ctx.fillStyle=grad;
+    let g=ctx.createLinearGradient(vx,vy,vx,c.height);
+    g.addColorStop(0,"#ff00cc");
+    g.addColorStop(1,"#330000");
+
+    ctx.fillStyle=g;
     ctx.beginPath();
-    ctx.moveTo(volcanoX-120,canvas.height);
-    ctx.lineTo(volcanoX,volcanoY);
-    ctx.lineTo(volcanoX+120,canvas.height);
+    ctx.moveTo(vx-150,c.height);
+    ctx.lineTo(vx,vy);
+    ctx.lineTo(vx+150,c.height);
     ctx.fill();
 
+    ctx.shadowBlur=0;
+
     /* TEXT */
-    textP.forEach((t,i)=>{
+    txt.forEach((t,i)=>{
         ctx.globalAlpha=t.a;
-        ctx.fillStyle="#ff69b4";
-        ctx.font="20px Arial";
+        ctx.fillStyle="#ff00cc";
+        ctx.shadowBlur=20;
+        ctx.shadowColor="#ff00cc";
+        ctx.font="28px Arial";
         ctx.fillText(t.text,t.x,t.y);
 
         t.x+=t.dx;
         t.y+=t.dy;
         t.a-=0.01;
 
-        if(t.a<=0) textP.splice(i,1);
+        if(t.a<=0) txt.splice(i,1);
     });
 
     /* FIREWORK */
-    fireworks.forEach((f,i)=>{
+    fw.forEach((f,i)=>{
         f.forEach((p,j)=>{
             ctx.globalAlpha=p.a;
             ctx.fillStyle=p.color;
+            ctx.shadowBlur=15;
+            ctx.shadowColor=p.color;
             ctx.fillRect(p.x,p.y,3,3);
 
             p.x+=p.dx;
@@ -267,32 +228,18 @@ function draw(){
             if(p.a<=0) f.splice(j,1);
         });
 
-        if(f.length===0) fireworks.splice(i,1);
+        if(f.length===0) fw.splice(i,1);
     });
 
     ctx.globalAlpha=1;
     requestAnimationFrame(draw);
 }
 
-/* spawn */
-setInterval(spawnHeart,80);
+setInterval(spawnHeart,60);
 setInterval(spawnText,300);
-setInterval(fire,1200);
+setInterval(fire,1000);
 
 draw();
-
-/* SECRET */
-let input="";
-const password="1234";
-
-document.addEventListener("keydown",e=>{
-    input+=e.key;
-    if(input.length>password.length) input=input.slice(-password.length);
-
-    if(input===password){
-        document.getElementById("secret").style.display="block";
-    }
-});
 </script>
 
 </body>
